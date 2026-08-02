@@ -40,5 +40,17 @@
         "category": "food",
         "transaction_type": "Expense",
         "date": "2026-07-29"
+    },
+    {
+        "amount": 10000.0,
+        "category": "Salary",
+        "transaction_type": "Income",
+        "date": "2026-08-02"
+    },
+    {
+        "amount": 200.0,
+        "category": "Food",
+        "transaction_type": "Expense",
+        "date": "2026-08-02"
     }
 ]
