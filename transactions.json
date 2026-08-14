@@ -52,5 +52,29 @@
         "category": "Food",
         "transaction_type": "Expense",
         "date": "2026-08-02"
+    },
+    {
+        "amount": 250.0,
+        "category": "food",
+        "transaction_type": "Expense",
+        "date": "2026-08-12",
+        "title": "Burger",
+        "recurring_id": 1
+    },
+    {
+        "amount": 250.0,
+        "category": "food",
+        "transaction_type": "Expense",
+        "date": "2026-08-13",
+        "title": "Burger",
+        "recurring_id": 1
+    },
+    {
+        "amount": 250.0,
+        "category": "food",
+        "transaction_type": "Expense",
+        "date": "2026-08-14",
+        "title": "Burger",
+        "recurring_id": 1
     }
 ]
