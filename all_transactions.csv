@@ -1,0 +1,13 @@
+Date,Title,Category,Type,Amount
+2026-07-23,,salary,Income,10000.0
+2026-07-23,,food,Expense,200.0
+2026-07-23,,food,Expense,500.0
+2026-07-26,,salary,Income,10000.0
+2026-07-26,,3,Expense,300.0
+2026-07-29,,salary,Income,10000.0
+2026-07-29,,food,Expense,500.0
+2026-08-02,,Salary,Income,10000.0
+2026-08-02,,Food,Expense,200.0
+2026-08-12,Burger,food,Expense,250.0
+2026-08-13,Burger,food,Expense,250.0
+2026-08-14,Burger,food,Expense,250.0
