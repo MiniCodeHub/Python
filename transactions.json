@@ -3,55 +3,82 @@
         "amount": 10000.0,
         "category": "salary",
         "transaction_type": "Income",
-        "date": "2026-07-23"
+        "date": "2026-07-23",
+        "type": "income",
+        "title": "Unknown",
+        "id": 1
     },
     {
         "amount": 200.0,
         "category": "food",
         "transaction_type": "Expense",
-        "date": "2026-07-23"
+        "date": "2026-07-23",
+        "type": "expense",
+        "title": "Unknown",
+        "id": 2
     },
     {
         "amount": 500.0,
         "category": "food",
         "transaction_type": "Expense",
-        "date": "2026-07-23"
+        "date": "2026-07-23",
+        "type": "expense",
+        "title": "Unknown",
+        "id": 3
     },
     {
         "amount": 10000.0,
         "category": "salary",
         "transaction_type": "Income",
-        "date": "2026-07-26"
+        "date": "2026-07-26",
+        "type": "income",
+        "title": "Unknown",
+        "id": 4
     },
     {
         "amount": 300.0,
         "category": "3",
         "transaction_type": "Expense",
-        "date": "2026-07-26"
+        "date": "2026-07-26",
+        "type": "expense",
+        "title": "Unknown",
+        "id": 5
     },
     {
         "amount": 10000.0,
         "category": "salary",
         "transaction_type": "Income",
-        "date": "2026-07-29"
+        "date": "2026-07-29",
+        "type": "income",
+        "title": "Unknown",
+        "id": 6
     },
     {
         "amount": 500.0,
         "category": "food",
         "transaction_type": "Expense",
-        "date": "2026-07-29"
+        "date": "2026-07-29",
+        "type": "expense",
+        "title": "Unknown",
+        "id": 7
     },
     {
         "amount": 10000.0,
         "category": "Salary",
         "transaction_type": "Income",
-        "date": "2026-08-02"
+        "date": "2026-08-02",
+        "type": "income",
+        "title": "Unknown",
+        "id": 8
     },
     {
         "amount": 200.0,
         "category": "Food",
         "transaction_type": "Expense",
-        "date": "2026-08-02"
+        "date": "2026-08-02",
+        "type": "expense",
+        "title": "Unknown",
+        "id": 9
     },
     {
         "amount": 250.0,
@@ -59,7 +86,9 @@
         "transaction_type": "Expense",
         "date": "2026-08-12",
         "title": "Burger",
-        "recurring_id": 1
+        "recurring_id": 1,
+        "type": "expense",
+        "id": 10
     },
     {
         "amount": 250.0,
@@ -67,7 +96,9 @@
         "transaction_type": "Expense",
         "date": "2026-08-13",
         "title": "Burger",
-        "recurring_id": 1
+        "recurring_id": 1,
+        "type": "expense",
+        "id": 11
     },
     {
         "amount": 250.0,
@@ -75,6 +106,24 @@
         "transaction_type": "Expense",
         "date": "2026-08-14",
         "title": "Burger",
-        "recurring_id": 1
+        "recurring_id": 1,
+        "type": "expense",
+        "id": 12
+    },
+    {
+        "id": 13,
+        "title": "salary",
+        "category": "salary",
+        "type": "income",
+        "amount": 25000.0,
+        "date": "2000 02 22"
+    },
+    {
+        "id": 14,
+        "title": "Intrest",
+        "category": "intrest",
+        "type": "income",
+        "amount": 2365.0,
+        "date": "2026 09 3"
     }
 ]
