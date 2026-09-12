@@ -1,324 +1,451 @@
 import json
 import os
 from datetime import datetime
-from collections import defaultdict
+from typing import Any
 
 
-# =====================================================
-# CONFIGURATION
-# =====================================================
-
-DATA_FILE = "transactions.json"
+DATA_FILE = "finance_data.json"
 
 
-# =====================================================
-# SAMPLE DATA
-# =====================================================
+# ============================================================
+# DATA MANAGEMENT
+# ============================================================
 
-SAMPLE_TRANSACTIONS = [
-
-    {
-        "id": 1,
-        "title": "Salary",
-        "category": "Salary",
-        "type": "income",
-        "amount": 60000,
-        "date": "2026-04-01"
-    },
-
-    {
-        "id": 2,
-        "title": "Rent",
-        "category": "Housing",
-        "type": "expense",
-        "amount": 12000,
-        "date": "2026-04-03"
-    },
-
-    {
-        "id": 3,
-        "title": "Food",
-        "category": "Food",
-        "type": "expense",
-        "amount": 5000,
-        "date": "2026-04-10"
-    },
-
-    {
-        "id": 4,
-        "title": "Salary",
-        "category": "Salary",
-        "type": "income",
-        "amount": 60000,
-        "date": "2026-05-01"
-    },
-
-    {
-        "id": 5,
-        "title": "Rent",
-        "category": "Housing",
-        "type": "expense",
-        "amount": 12000,
-        "date": "2026-05-03"
-    },
-
-    {
-        "id": 6,
-        "title": "Shopping",
-        "category": "Shopping",
-        "type": "expense",
-        "amount": 7000,
-        "date": "2026-05-15"
-    },
-
-    {
-        "id": 7,
-        "title": "Salary",
-        "category": "Salary",
-        "type": "income",
-        "amount": 62000,
-        "date": "2026-06-01"
-    },
-
-    {
-        "id": 8,
-        "title": "Food",
-        "category": "Food",
-        "type": "expense",
-        "amount": 6500,
-        "date": "2026-06-12"
-    },
-
-    {
-        "id": 9,
-        "title": "Transport",
-        "category": "Transport",
-        "type": "expense",
-        "amount": 3000,
-        "date": "2026-06-18"
-    },
-
-    {
-        "id": 10,
-        "title": "Salary",
-        "category": "Salary",
-        "type": "income",
-        "amount": 62000,
-        "date": "2026-07-01"
-    },
-
-    {
-        "id": 11,
-        "title": "Rent",
-        "category": "Housing",
-        "type": "expense",
-        "amount": 12000,
-        "date": "2026-07-03"
-    },
-
-    {
-        "id": 12,
-        "title": "Entertainment",
-        "category": "Entertainment",
-        "type": "expense",
-        "amount": 4000,
-        "date": "2026-07-20"
-    },
-
-    {
-        "id": 13,
-        "title": "Salary",
-        "category": "Salary",
-        "type": "income",
-        "amount": 65000,
-        "date": "2026-08-01"
-    },
-
-    {
-        "id": 14,
-        "title": "Food",
-        "category": "Food",
-        "type": "expense",
-        "amount": 7000,
-        "date": "2026-08-09"
-    },
-
-    {
-        "id": 15,
-        "title": "Shopping",
-        "category": "Shopping",
-        "type": "expense",
-        "amount": 6000,
-        "date": "2026-08-16"
-    },
-
-    {
-        "id": 16,
-        "title": "Rent",
-        "category": "Housing",
-        "type": "expense",
-        "amount": 12000,
-        "date": "2026-08-03"
-    },
-
-    {
-        "id": 17,
-        "title": "Salary",
-        "category": "Salary",
-        "type": "income",
-        "amount": 65000,
-        "date": "2026-09-01"
-    },
-
-    {
-        "id": 18,
-        "title": "Rent",
-        "category": "Housing",
-        "type": "expense",
-        "amount": 12000,
-        "date": "2026-09-03"
-    },
-
-    {
-        "id": 19,
-        "title": "Food",
-        "category": "Food",
-        "type": "expense",
-        "amount": 5500,
-        "date": "2026-09-04"
-    },
-
-    {
-        "id": 20,
-        "title": "Transport",
-        "category": "Transport",
-        "type": "expense",
-        "amount": 2500,
-        "date": "2026-09-05"
-    }
-
-]
-
-
-# =====================================================
-# LOAD DATA
-# =====================================================
-
-def load_transactions():
-
+def load_data() -> dict[str, Any]:
     if not os.path.exists(DATA_FILE):
-
-        save_transactions(
-            SAMPLE_TRANSACTIONS
-        )
-
-        return SAMPLE_TRANSACTIONS.copy()
-
+        return {
+            "transactions": [],
+            "budgets": {},
+            "goals": []
+        }
 
     try:
-
-        with open(
-            DATA_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
+        with open(DATA_FILE, "r", encoding="utf-8") as file:
             data = json.load(file)
 
+        if not isinstance(data, dict):
+            return {
+                "transactions": [],
+                "budgets": {},
+                "goals": []
+            }
 
-        if isinstance(data, list):
+        data.setdefault("transactions", [])
+        data.setdefault("budgets", {})
+        data.setdefault("goals", [])
 
-            return data
+        return data
+
+    except (json.JSONDecodeError, OSError):
+        print("Could not read data file. Starting with empty data.")
+        return {
+            "transactions": [],
+            "budgets": {},
+            "goals": []
+        }
 
 
-    except (
-        json.JSONDecodeError,
-        OSError
-    ):
-
-        pass
-
-
-    return []
-
-
-# =====================================================
-# SAVE DATA
-# =====================================================
-
-def save_transactions(
-    transactions
-):
-
+def save_data(data: dict[str, Any]) -> None:
     try:
-
-        with open(
-            DATA_FILE,
-            "w",
-            encoding="utf-8"
-        ) as file:
-
+        with open(DATA_FILE, "w", encoding="utf-8") as file:
             json.dump(
-                transactions,
+                data,
                 file,
                 indent=4
             )
-
     except OSError as error:
+        print(f"Could not save data: {error}")
 
-        print(
-            f"Error saving data: {error}"
+
+# ============================================================
+# INPUT HELPERS
+# ============================================================
+
+def get_non_empty_input(prompt: str) -> str:
+    while True:
+        value = input(prompt).strip()
+
+        if value:
+            return value
+
+        print("Input cannot be empty.")
+
+
+def get_amount(prompt: str) -> float:
+    while True:
+        try:
+            amount = float(input(prompt).strip())
+
+            if amount <= 0:
+                print("Amount must be greater than 0.")
+                continue
+
+            return round(amount, 2)
+
+        except ValueError:
+            print("Please enter a valid amount.")
+
+
+def get_integer(prompt: str) -> int:
+    while True:
+        try:
+            return int(input(prompt).strip())
+
+        except ValueError:
+            print("Please enter a valid number.")
+
+
+def get_date(prompt: str) -> str:
+    while True:
+        value = input(prompt).strip()
+
+        if not value:
+            return datetime.now().strftime("%Y-%m-%d")
+
+        try:
+            datetime.strptime(
+                value,
+                "%Y-%m-%d"
+            )
+
+            return value
+
+        except ValueError:
+            print("Use date format YYYY-MM-DD.")
+
+
+def pause() -> None:
+    input("\nPress Enter to continue...")
+
+
+# ============================================================
+# TRANSACTION VALIDATION
+# ============================================================
+
+def normalize_transaction(
+    transaction: dict[str, Any]
+) -> dict[str, Any]:
+
+    return {
+        "id": transaction.get("id", 0),
+        "type": transaction.get("type", "expense"),
+        "category": transaction.get(
+            "category",
+            "Other"
+        ),
+        "amount": float(
+            transaction.get(
+                "amount",
+                0
+            )
+        ),
+        "description": transaction.get(
+            "description",
+            ""
+        ),
+        "date": transaction.get(
+            "date",
+            datetime.now().strftime("%Y-%m-%d")
+        )
+    }
+
+
+def normalize_data(
+    data: dict[str, Any]
+) -> dict[str, Any]:
+
+    transactions = []
+
+    for index, transaction in enumerate(
+        data.get("transactions", []),
+        start=1
+    ):
+        if isinstance(transaction, dict):
+            normalized = normalize_transaction(
+                transaction
+            )
+
+            if not normalized["id"]:
+                normalized["id"] = index
+
+            transactions.append(normalized)
+
+    data["transactions"] = transactions
+
+    if not isinstance(
+        data.get("budgets"),
+        dict
+    ):
+        data["budgets"] = {}
+
+    if not isinstance(
+        data.get("goals"),
+        list
+    ):
+        data["goals"] = []
+
+    return data
+
+
+# ============================================================
+# TRANSACTION FUNCTIONS
+# ============================================================
+
+def get_next_transaction_id(
+    transactions: list[dict[str, Any]]
+) -> int:
+
+    valid_ids = []
+
+    for transaction in transactions:
+        try:
+            valid_ids.append(
+                int(transaction.get("id", 0))
+            )
+        except (ValueError, TypeError):
+            pass
+
+    if not valid_ids:
+        return 1
+
+    return max(valid_ids) + 1
+
+
+def add_transaction(
+    data: dict[str, Any]
+) -> None:
+
+    print("\n" + "=" * 50)
+    print("ADD TRANSACTION")
+    print("=" * 50)
+
+    print("1. Income")
+    print("2. Expense")
+
+    while True:
+        transaction_type = input(
+            "Choose type: "
+        ).strip()
+
+        if transaction_type == "1":
+            transaction_type = "income"
+            break
+
+        if transaction_type == "2":
+            transaction_type = "expense"
+            break
+
+        print("Choose 1 or 2.")
+
+    category = get_non_empty_input(
+        "Category: "
+    )
+
+    amount = get_amount(
+        "Amount: ₹"
+    )
+
+    description = input(
+        "Description: "
+    ).strip()
+
+    date = get_date(
+        "Date (YYYY-MM-DD, Enter for today): "
+    )
+
+    transaction = {
+        "id": get_next_transaction_id(
+            data["transactions"]
+        ),
+        "type": transaction_type,
+        "category": category,
+        "amount": amount,
+        "description": description,
+        "date": date
+    }
+
+    data["transactions"].append(
+        transaction
+    )
+
+    save_data(data)
+
+    print("\nTransaction added successfully.")
+
+
+def show_transactions(
+    data: dict[str, Any]
+) -> None:
+
+    transactions = data["transactions"]
+
+    if not transactions:
+        print("\nNo transactions found.")
+        return
+
+    print("\n" + "=" * 90)
+    print("ALL TRANSACTIONS")
+    print("=" * 90)
+
+    print(
+        f"{'ID':<5}"
+        f"{'Date':<15}"
+        f"{'Type':<10}"
+        f"{'Category':<18}"
+        f"{'Amount':>12}"
+    )
+
+    print("-" * 90)
+
+    for transaction in transactions:
+
+        transaction_type = transaction.get(
+            "type",
+            "expense"
         )
 
+        sign = "+" if transaction_type == "income" else "-"
 
-# =====================================================
-# CURRENCY
-# =====================================================
+        print(
+            f"{transaction.get('id', 0):<5}"
+            f"{transaction.get('date', ''):<15}"
+            f"{transaction_type:<10}"
+            f"{transaction.get('category', ''):<18}"
+            f"{sign}₹{transaction.get('amount', 0):>10.2f}"
+        )
 
-def currency(
-    amount
-):
+        description = transaction.get(
+            "description",
+            ""
+        )
 
-    return f"₹{amount:,.2f}"
+        if description:
+            print(
+                f"      Description: {description}"
+            )
+
+    print("-" * 90)
 
 
-# =====================================================
-# TOTAL INCOME
-# =====================================================
+def delete_transaction(
+    data: dict[str, Any]
+) -> None:
+
+    show_transactions(data)
+
+    if not data["transactions"]:
+        return
+
+    transaction_id = get_integer(
+        "\nEnter transaction ID to delete: "
+    )
+
+    transaction = next(
+        (
+            item
+            for item in data["transactions"]
+            if item.get("id") == transaction_id
+        ),
+        None
+    )
+
+    if transaction is None:
+        print("Transaction not found.")
+        return
+
+    data["transactions"].remove(
+        transaction
+    )
+
+    save_data(data)
+
+    print("Transaction deleted successfully.")
+
+
+# ============================================================
+# FINANCIAL CALCULATIONS
+# ============================================================
 
 def get_total_income(
-    transactions
-):
+    transactions: list[dict[str, Any]]
+) -> float:
 
-    return sum(
-        float(transaction["amount"])
-        for transaction in transactions
-        if transaction["type"] == "income"
+    return round(
+        sum(
+            float(transaction.get("amount", 0))
+            for transaction in transactions
+            if transaction.get("type") == "income"
+        ),
+        2
     )
 
-
-# =====================================================
-# TOTAL EXPENSE
-# =====================================================
 
 def get_total_expenses(
-    transactions
-):
+    transactions: list[dict[str, Any]]
+) -> float:
 
-    return sum(
-        float(transaction["amount"])
-        for transaction in transactions
-        if transaction["type"] == "expense"
+    return round(
+        sum(
+            float(transaction.get("amount", 0))
+            for transaction in transactions
+            if transaction.get("type") == "expense"
+        ),
+        2
     )
 
 
-# =====================================================
-# BALANCE
-# =====================================================
-
 def get_balance(
-    transactions
-):
+    transactions: list[dict[str, Any]]
+) -> float:
+
+    return round(
+        get_total_income(transactions)
+        - get_total_expenses(transactions),
+        2
+    )
+
+
+def get_category_expenses(
+    transactions: list[dict[str, Any]]
+) -> dict[str, float]:
+
+    categories: dict[str, float] = {}
+
+    for transaction in transactions:
+
+        if transaction.get("type") != "expense":
+            continue
+
+        category = transaction.get(
+            "category",
+            "Other"
+        )
+
+        amount = float(
+            transaction.get(
+                "amount",
+                0
+            )
+        )
+
+        categories[category] = round(
+            categories.get(category, 0)
+            + amount,
+            2
+        )
+
+    return categories
+
+
+# ============================================================
+# DASHBOARD
+# ============================================================
+
+def show_dashboard(
+    data: dict[str, Any]
+) -> None:
+
+    transactions = data["transactions"]
 
     income = get_total_income(
         transactions
@@ -328,1007 +455,479 @@ def get_balance(
         transactions
     )
 
-    return income - expenses
+    balance = income - expenses
 
+    print("\n")
+    print("=" * 60)
+    print("              PERSONAL FINANCE DASHBOARD")
+    print("=" * 60)
 
-# =====================================================
-# SAVINGS RATE
-# =====================================================
+    print(f"\nTotal Income   : ₹{income:,.2f}")
+    print(f"Total Expenses : ₹{expenses:,.2f}")
+    print(f"Balance        : ₹{balance:,.2f}")
 
-def get_savings_rate(
-    transactions
-):
+    print("\n" + "-" * 60)
+    print("EXPENSES BY CATEGORY")
+    print("-" * 60)
 
-    income = get_total_income(
+    categories = get_category_expenses(
         transactions
     )
 
-    if income == 0:
+    if not categories:
+        print("No expenses recorded.")
 
-        return 0
-
-
-    balance = get_balance(
-        transactions
-    )
-
-
-    return (
-        balance /
-        income
-    ) * 100
-
-
-# =====================================================
-# CATEGORY SUMMARY
-# =====================================================
-
-def get_category_summary(
-    transactions
-):
-
-    categories = defaultdict(float)
-
-
-    for transaction in transactions:
-
-        if (
-            transaction["type"]
-            != "expense"
+    else:
+        for category, amount in sorted(
+            categories.items(),
+            key=lambda item: item[1],
+            reverse=True
         ):
-            continue
-
-
-        category =
-            transaction.get(
-                "category",
-                "Other"
+            print(
+                f"{category:<25} ₹{amount:>10,.2f}"
             )
 
+    print("\n" + "-" * 60)
+    print("FINANCIAL STATUS")
+    print("-" * 60)
 
-        categories[category] += \
-            float(
-                transaction["amount"]
-            )
+    if balance > 0:
+        print("You currently have a positive balance.")
+
+    elif balance < 0:
+        print("Warning: Your expenses are higher than your income.")
+
+    else:
+        print("Your income and expenses are balanced.")
+
+    print("=" * 60)
 
 
-    return dict(categories)
-
-
-# =====================================================
+# ============================================================
 # MONTHLY SUMMARY
-# =====================================================
+# ============================================================
 
-def get_monthly_summary(
-    transactions
-):
+def monthly_summary(
+    data: dict[str, Any]
+) -> None:
 
-    monthly = defaultdict(
-        lambda: {
-            "income": 0,
-            "expense": 0
-        }
-    )
+    month = input(
+        "Enter month (YYYY-MM): "
+    ).strip()
 
+    try:
+        datetime.strptime(
+            month,
+            "%Y-%m"
+        )
+    except ValueError:
+        print("Invalid month format.")
+        return
 
-    for transaction in transactions:
-
-        date = transaction.get(
+    monthly_transactions = [
+        transaction
+        for transaction in data["transactions"]
+        if transaction.get(
             "date",
             ""
-        )
+        ).startswith(month)
+    ]
 
-
-        month =
-            date[:7]
-
-
-        amount =
-            float(
-                transaction["amount"]
-            )
-
-
-        if (
-            transaction["type"]
-            == "income"
-        ):
-
-            monthly[
-                month
-            ]["income"] += amount
-
-
-        elif (
-            transaction["type"]
-            == "expense"
-        ):
-
-            monthly[
-                month
-            ]["expense"] += amount
-
-
-    return dict(
-        sorted(
-            monthly.items()
-        )
+    income = get_total_income(
+        monthly_transactions
     )
 
-
-# =====================================================
-# HIGHEST EXPENSE CATEGORY
-# =====================================================
-
-def get_highest_category(
-    transactions
-):
-
-    categories =
-        get_category_summary(
-            transactions
-        )
-
-
-    if not categories:
-
-        return None, 0
-
-
-    category =
-        max(
-            categories,
-            key=categories.get
-        )
-
-
-    return (
-        category,
-        categories[category]
+    expenses = get_total_expenses(
+        monthly_transactions
     )
 
+    print("\n" + "=" * 50)
+    print(f"MONTHLY SUMMARY — {month}")
+    print("=" * 50)
 
-# =====================================================
-# FINANCIAL HEALTH
-# =====================================================
+    print(f"Income   : ₹{income:,.2f}")
+    print(f"Expenses : ₹{expenses:,.2f}")
+    print(f"Balance  : ₹{income - expenses:,.2f}")
 
-def financial_health(
-    savings_rate
-):
-
-    if savings_rate >= 30:
-
-        return (
-            "EXCELLENT",
-            "Your savings rate is very strong."
-        )
+    print("=" * 50)
 
 
-    if savings_rate >= 20:
+# ============================================================
+# BUDGET SYSTEM
+# ============================================================
 
-        return (
-            "GOOD",
-            "You are maintaining a healthy savings rate."
-        )
+def set_budget(
+    data: dict[str, Any]
+) -> None:
 
-
-    if savings_rate >= 10:
-
-        return (
-            "MODERATE",
-            "Try to increase your monthly savings."
-        )
-
-
-    if savings_rate > 0:
-
-        return (
-            "NEEDS IMPROVEMENT",
-            "Your savings are currently quite low."
-        )
-
-
-    return (
-        "CRITICAL",
-        "Your expenses are equal to or greater than your income."
+    category = get_non_empty_input(
+        "Budget category: "
     )
 
+    amount = get_amount(
+        "Budget amount: ₹"
+    )
 
-# =====================================================
-# DASHBOARD
-# =====================================================
+    data["budgets"][category] = amount
 
-def show_dashboard(
-    transactions
-):
-
-    income =
-        get_total_income(
-            transactions
-        )
-
-
-    expenses =
-        get_total_expenses(
-            transactions
-        )
-
-
-    balance =
-        get_balance(
-            transactions
-        )
-
-
-    savings_rate =
-        get_savings_rate(
-            transactions
-        )
-
+    save_data(data)
 
     print(
-        "\n"
-        + "=" * 60
-    )
-
-    print(
-        "              PERSONAL FINANCE DASHBOARD"
-    )
-
-    print(
-        "=" * 60
+        f"Budget set for {category}: ₹{amount:,.2f}"
     )
 
 
-    print(
-        f"\nTotal Income   : "
-        f"{currency(income)}"
-    )
+def show_budgets(
+    data: dict[str, Any]
+) -> None:
 
+    budgets = data["budgets"]
 
-    print(
-        f"Total Expenses : "
-        f"{currency(expenses)}"
-    )
-
-
-    print(
-        f"Balance        : "
-        f"{currency(balance)}"
-    )
-
-
-    print(
-        f"Savings Rate   : "
-        f"{savings_rate:.1f}%"
-    )
-
-
-    print(
-        "-" * 60
-    )
-
-
-    status, message =
-        financial_health(
-            savings_rate
-        )
-
-
-    print(
-        f"Financial Health : {status}"
-    )
-
-    print(
-        f"Advice           : {message}"
-    )
-
-
-    print(
-        "=" * 60
-    )
-
-
-# =====================================================
-# CATEGORY REPORT
-# =====================================================
-
-def show_category_report(
-    transactions
-):
-
-    categories =
-        get_category_summary(
-            transactions
-        )
-
-
-    print(
-        "\n"
-        + "=" * 60
-    )
-
-    print(
-        "             EXPENSE CATEGORY REPORT"
-    )
-
-    print(
-        "=" * 60
-    )
-
-
-    if not categories:
-
-        print(
-            "\nNo expense data available."
-        )
-
+    if not budgets:
+        print("\nNo budgets created.")
         return
 
+    expenses = get_category_expenses(
+        data["transactions"]
+    )
 
-    total =
-        sum(
-            categories.values()
+    print("\n" + "=" * 60)
+    print("BUDGET STATUS")
+    print("=" * 60)
+
+    for category, budget in budgets.items():
+
+        spent = expenses.get(
+            category,
+            0
         )
 
+        remaining = budget - spent
 
-    sorted_categories =
-        sorted(
-            categories.items(),
-            key=lambda item:
-                item[1],
-            reverse=True
-        )
+        print(f"\nCategory : {category}")
+        print(f"Budget   : ₹{budget:,.2f}")
+        print(f"Spent    : ₹{spent:,.2f}")
+        print(f"Remaining: ₹{remaining:,.2f}")
 
+        if remaining < 0:
+            print("STATUS   : OVER BUDGET")
 
-    for (
-        category,
-        amount
-    ) in sorted_categories:
-
-        percentage =
-            (
-                amount /
-                total *
-                100
-            )
+        else:
+            print("STATUS   : Within budget")
 
 
-        print(
-            f"\n{category:<20}"
-            f"{currency(amount):>15}"
-            f"   {percentage:>5.1f}%"
-        )
+# ============================================================
+# SAVINGS GOALS
+# ============================================================
 
+def add_goal(
+    data: dict[str, Any]
+) -> None:
 
-    print(
-        "\n"
-        + "-" * 60
+    print("\n" + "=" * 50)
+    print("ADD SAVINGS GOAL")
+    print("=" * 50)
+
+    name = get_non_empty_input(
+        "Goal name: "
     )
 
-    print(
-        f"Total Expenses: "
-        f"{currency(total)}"
+    target = get_amount(
+        "Target amount: ₹"
     )
 
-
-# =====================================================
-# MONTHLY REPORT
-# =====================================================
-
-def show_monthly_report(
-    transactions
-):
-
-    monthly =
-        get_monthly_summary(
-            transactions
-        )
-
-
-    print(
-        "\n"
-        + "=" * 70
-    )
-
-    print(
-        "                    MONTHLY REPORT"
-    )
-
-    print(
-        "=" * 70
-    )
-
-
-    if not monthly:
-
-        print(
-            "\nNo monthly data available."
-        )
-
-        return
-
-
-    print(
-        f"\n{'Month':<12}"
-        f"{'Income':>15}"
-        f"{'Expense':>15}"
-        f"{'Savings':>15}"
-    )
-
-
-    print(
-        "-" * 70
-    )
-
-
-    for (
-        month,
-        data
-    ) in monthly.items():
-
-        savings =
-            data["income"] -
-            data["expense"]
-
-
-        print(
-            f"{month:<12}"
-            f"{currency(data['income']):>15}"
-            f"{currency(data['expense']):>15}"
-            f"{currency(savings):>15}"
-        )
-
-
-# =====================================================
-# TOP EXPENSE
-# =====================================================
-
-def show_highest_category(
-    transactions
-):
-
-    category, amount =
-        get_highest_category(
-            transactions
-        )
-
-
-    print(
-        "\n"
-        + "=" * 60
-    )
-
-    print(
-        "              HIGHEST EXPENSE CATEGORY"
-    )
-
-    print(
-        "=" * 60
-    )
-
-
-    if category is None:
-
-        print(
-            "\nNo expense data available."
-        )
-
-        return
-
-
-    print(
-        f"\nCategory : {category}"
-    )
-
-    print(
-        f"Amount   : {currency(amount)}"
-    )
-
-
-# =====================================================
-# TRANSACTION COUNT
-# =====================================================
-
-def show_transaction_statistics(
-    transactions
-):
-
-    income_count =
-        sum(
-            1
-            for transaction
-            in transactions
-            if transaction["type"]
-            == "income"
-        )
-
-
-    expense_count =
-        sum(
-            1
-            for transaction
-            in transactions
-            if transaction["type"]
-            == "expense"
-        )
-
-
-    print(
-        "\n"
-        + "=" * 60
-    )
-
-    print(
-        "             TRANSACTION STATISTICS"
-    )
-
-    print(
-        "=" * 60
-    )
-
-
-    print(
-        f"\nTotal Transactions : "
-        f"{len(transactions)}"
-    )
-
-
-    print(
-        f"Income Transactions : "
-        f"{income_count}"
-    )
-
-
-    print(
-        f"Expense Transactions: "
-        f"{expense_count}"
-    )
-
-
-# =====================================================
-# COMPLETE REPORT
-# =====================================================
-
-def generate_complete_report(
-    transactions
-):
-
-    print(
-        "\n\n"
-    )
-
-    print(
-        "#" * 70
-    )
-
-    print(
-        "#                 FINANCIAL REPORT                 #"
-    )
-
-    print(
-        "#" * 70
-    )
-
-
-    show_dashboard(
-        transactions
-    )
-
-
-    show_category_report(
-        transactions
-    )
-
-
-    show_monthly_report(
-        transactions
-    )
-
-
-    show_highest_category(
-        transactions
-    )
-
-
-    show_transaction_statistics(
-        transactions
-    )
-
-
-    print(
-        "\n"
-        + "#" * 70
-    )
-
-    print(
-        "#              END OF FINANCIAL REPORT             #"
-    )
-
-    print(
-        "#" * 70
-    )
-
-
-# =====================================================
-# ADD TRANSACTION
-# =====================================================
-
-def add_transaction(
-    transactions
-):
-
-    print(
-        "\n========== ADD TRANSACTION =========="
-    )
-
-
-    title =
-        input(
-            "Title: "
-        ).strip()
-
-
-    category =
-        input(
-            "Category: "
-        ).strip()
-
-
-    transaction_type =
-        input(
-            "Type (income/expense): "
-        ).strip().lower()
-
-
-    if transaction_type not in (
-        "income",
-        "expense"
-    ):
-
-        print(
-            "\nInvalid transaction type."
-        )
-
-        return
-
-
-    try:
-
-        amount =
-            float(
-                input(
-                    "Amount: ₹"
-                )
-            )
-
-    except ValueError:
-
-        print(
-            "\nInvalid amount."
-        )
-
-        return
-
-
-    date =
-        input(
-            "Date (YYYY-MM-DD): "
-        ).strip()
-
-
-    try:
-
-        datetime.strptime(
-            date,
-            "%Y-%m-%d"
-        )
-
-    except ValueError:
-
-        print(
-            "\nInvalid date format."
-        )
-
-        return
-
-
-    new_id =
-        max(
-            (
-                transaction["id"]
-                for transaction
-                in transactions
-            ),
-            default=0
-        ) + 1
-
-
-    transaction = {
-
-        "id": new_id,
-
-        "title": title,
-
-        "category": category,
-
-        "type": transaction_type,
-
-        "amount": amount,
-
-        "date": date
-
+    goal = {
+        "id": len(data["goals"]) + 1,
+        "name": name,
+        "target": target,
+        "saved": 0.0
     }
 
-
-    transactions.append(
-        transaction
+    data["goals"].append(
+        goal
     )
 
+    save_data(data)
 
-    save_transactions(
-        transactions
-    )
-
-
-    print(
-        "\nTransaction added successfully."
-    )
+    print("Savings goal created.")
 
 
-# =====================================================
-# VIEW TRANSACTIONS
-# =====================================================
+def add_goal_saving(
+    data: dict[str, Any]
+) -> None:
 
-def view_transactions(
-    transactions
-):
+    show_goals(data)
 
-    print(
-        "\n"
-        + "=" * 80
-    )
-
-    print(
-        "                    TRANSACTIONS"
-    )
-
-    print(
-        "=" * 80
-    )
-
-
-    if not transactions:
-
-        print(
-            "\nNo transactions found."
-        )
-
+    if not data["goals"]:
         return
 
+    goal_id = get_integer(
+        "\nGoal ID: "
+    )
 
-    for transaction in transactions:
+    goal = next(
+        (
+            item
+            for item in data["goals"]
+            if item.get("id") == goal_id
+        ),
+        None
+    )
 
-        print(
-            f"\nID       : "
-            f"{transaction['id']}"
+    if goal is None:
+        print("Goal not found.")
+        return
+
+    amount = get_amount(
+        "Amount saved: ₹"
+    )
+
+    goal["saved"] = round(
+        float(goal.get("saved", 0))
+        + amount,
+        2
+    )
+
+    save_data(data)
+
+    print("Saving added successfully.")
+
+
+def show_goals(
+    data: dict[str, Any]
+) -> None:
+
+    goals = data["goals"]
+
+    if not goals:
+        print("\nNo savings goals.")
+        return
+
+    print("\n" + "=" * 70)
+    print("SAVINGS GOALS")
+    print("=" * 70)
+
+    for goal in goals:
+
+        target = float(
+            goal.get("target", 0)
         )
 
-        print(
-            f"Title    : "
-            f"{transaction['title']}"
+        saved = float(
+            goal.get("saved", 0)
         )
 
-        print(
-            f"Category : "
-            f"{transaction['category']}"
+        remaining = max(
+            target - saved,
+            0
         )
 
-        print(
-            f"Type     : "
-            f"{transaction['type']}"
+        percentage = (
+            saved / target * 100
+            if target > 0
+            else 0
         )
 
-        print(
-            f"Amount   : "
-            f"{currency(transaction['amount'])}"
-        )
+        print(f"\nID       : {goal.get('id')}")
+        print(f"Goal     : {goal.get('name')}")
+        print(f"Target   : ₹{target:,.2f}")
+        print(f"Saved    : ₹{saved:,.2f}")
+        print(f"Remaining: ₹{remaining:,.2f}")
+        print(f"Progress : {percentage:.1f}%")
+
+        if saved >= target:
+            print("STATUS   : GOAL COMPLETED")
+        else:
+            print("STATUS   : IN PROGRESS")
+
+
+# ============================================================
+# SEARCH
+# ============================================================
+
+def search_transactions(
+    data: dict[str, Any]
+) -> None:
+
+    keyword = get_non_empty_input(
+        "Search keyword: "
+    ).lower()
+
+    results = []
+
+    for transaction in data["transactions"]:
+
+        searchable = " ".join(
+            [
+                str(transaction.get("type", "")),
+                str(transaction.get("category", "")),
+                str(transaction.get("description", "")),
+                str(transaction.get("date", "")),
+            ]
+        ).lower()
+
+        if keyword in searchable:
+            results.append(transaction)
+
+    if not results:
+        print("\nNo matching transactions.")
+        return
+
+    print("\n" + "=" * 70)
+    print("SEARCH RESULTS")
+    print("=" * 70)
+
+    for transaction in results:
 
         print(
-            f"Date     : "
-            f"{transaction['date']}"
+            f"ID: {transaction.get('id')} | "
+            f"{transaction.get('date')} | "
+            f"{transaction.get('type')} | "
+            f"{transaction.get('category')} | "
+            f"₹{transaction.get('amount', 0):,.2f}"
         )
 
-        print(
-            "-" * 80
-        )
+        if transaction.get("description"):
+            print(
+                f"Description: {transaction.get('description')}"
+            )
 
 
-# =====================================================
+# ============================================================
+# DATA RESET
+# ============================================================
+
+def reset_data(
+    data: dict[str, Any]
+) -> None:
+
+    confirmation = input(
+        "\nType DELETE to erase all financial data: "
+    ).strip()
+
+    if confirmation != "DELETE":
+        print("Reset cancelled.")
+        return
+
+    data["transactions"] = []
+    data["budgets"] = {}
+    data["goals"] = []
+
+    save_data(data)
+
+    print("All financial data has been deleted.")
+
+
+# ============================================================
 # MENU
-# =====================================================
+# ============================================================
 
-def show_menu():
+def show_menu() -> None:
 
-    print(
-        "\n\n"
-        + "=" * 60
-    )
+    print("\n")
+    print("=" * 60)
+    print("       PERSONAL FINANCE CLI + DASHBOARD")
+    print("=" * 60)
 
-    print(
-        "             PERSONAL FINANCE MANAGER"
-    )
+    print("\n1. Dashboard")
+    print("2. Add Transaction")
+    print("3. View Transactions")
+    print("4. Search Transactions")
+    print("5. Delete Transaction")
+    print("6. Monthly Summary")
+    print("7. Set Budget")
+    print("8. View Budgets")
+    print("9. Add Savings Goal")
+    print("10. Add Goal Saving")
+    print("11. View Savings Goals")
+    print("12. Reset All Data")
+    print("0. Exit")
 
-    print(
-        "=" * 60
-    )
-
-    print(
-        "1. Dashboard"
-    )
-
-    print(
-        "2. Add Transaction"
-    )
-
-    print(
-        "3. View Transactions"
-    )
-
-    print(
-        "4. Expense Category Report"
-    )
-
-    print(
-        "5. Monthly Report"
-    )
-
-    print(
-        "6. Highest Expense Category"
-    )
-
-    print(
-        "7. Transaction Statistics"
-    )
-
-    print(
-        "8. Complete Financial Report"
-    )
-
-    print(
-        "9. Save Data"
-    )
-
-    print(
-        "10. Exit"
-    )
-
-    print(
-        "=" * 60
-    )
+    print("=" * 60)
 
 
-# =====================================================
-# MAIN
-# =====================================================
+# ============================================================
+# MAIN PROGRAM
+# ============================================================
 
-def main():
+def main() -> None:
 
-    transactions =
-        load_transactions()
+    data = load_data()
 
+    data = normalize_data(data)
 
-    print(
-        "\nPersonal Finance Manager started."
-    )
-
+    save_data(data)
 
     while True:
 
         show_menu()
 
-
-        choice =
-            input(
-                "\nEnter choice: "
-            ).strip()
-
+        choice = input(
+            "Enter your choice: "
+        ).strip()
 
         if choice == "1":
-
-            show_dashboard(
-                transactions
-            )
-
+            show_dashboard(data)
+            pause()
 
         elif choice == "2":
-
-            add_transaction(
-                transactions
-            )
-
+            add_transaction(data)
+            pause()
 
         elif choice == "3":
-
-            view_transactions(
-                transactions
-            )
-
+            show_transactions(data)
+            pause()
 
         elif choice == "4":
-
-            show_category_report(
-                transactions
-            )
-
+            search_transactions(data)
+            pause()
 
         elif choice == "5":
-
-            show_monthly_report(
-                transactions
-            )
-
+            delete_transaction(data)
+            pause()
 
         elif choice == "6":
-
-            show_highest_category(
-                transactions
-            )
-
+            monthly_summary(data)
+            pause()
 
         elif choice == "7":
-
-            show_transaction_statistics(
-                transactions
-            )
-
+            set_budget(data)
+            pause()
 
         elif choice == "8":
-
-            generate_complete_report(
-                transactions
-            )
-
+            show_budgets(data)
+            pause()
 
         elif choice == "9":
-
-            save_transactions(
-                transactions
-            )
-
-            print(
-                "\nData saved successfully."
-            )
-
+            add_goal(data)
+            pause()
 
         elif choice == "10":
+            add_goal_saving(data)
+            pause()
 
-            save_transactions(
-                transactions
-            )
+        elif choice == "11":
+            show_goals(data)
+            pause()
 
-            print(
-                "\nData saved."
-            )
+        elif choice == "12":
+            reset_data(data)
+            pause()
 
-            print(
-                "Thank you for using Personal Finance Manager!"
-            )
-
+        elif choice == "0":
+            save_data(data)
+            print("\nThank you for using Personal Finance Manager.")
+            print("Goodbye!")
             break
 
-
         else:
-
-            print(
-                "\nInvalid choice. Try again."
-            )
+            print("\nInvalid choice.")
+            pause()
 
 
-# =====================================================
+# ============================================================
 # PROGRAM START
-# =====================================================
+# ============================================================
 
 if __name__ == "__main__":
-
     main()
